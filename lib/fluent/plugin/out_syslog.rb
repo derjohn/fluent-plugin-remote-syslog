@@ -1,12 +1,16 @@
 require 'fluent/mixin/config_placeholders'
+require 'fluent/mixin/rewrite_tag_name'
 module Fluent
 
   class SyslogOutput < Fluent::Output
     # First, register the plugin. NAME is the name of this plugin
     # and identifies the plugin in the configuration file.
+    # This method is called before starting.
     Fluent::Plugin.register_output('syslog', self)
 
     # This method is called before starting.
+    include Fluent::Mixin::ConfigPlaceholders
+    include Fluent::Mixin::RewriteTagName
 
     config_param :remote_syslog, :string, :default => nil
     config_param :port, :integer, :default => 25
