@@ -132,7 +132,7 @@ module Fluent
 
   end
 
-  class Time
+  class Time < Time
     def timezone(timezone = 'UTC')
       old = ENV['TZ']
       utc = self.dup.utc
