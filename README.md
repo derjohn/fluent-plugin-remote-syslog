@@ -32,6 +32,14 @@ Both plugins have the same configuration options:
 </match>
 ```
 
+#Building and Installing:
+```
+git clone https://github.com/docebo/fluent-plugin-remote-syslog
+cd fluent-plugin-remote-syslog
+gem build fluent-plugin-remote-syslog.gemspec
+# In case of td-agent:
+/usr/sbin/td-agent-gem install /tmp/fluent-plugin-remote-syslog-*.gem
+```
 
 Contributors:
 
