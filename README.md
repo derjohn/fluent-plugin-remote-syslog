@@ -25,7 +25,7 @@ Both plugins have the same configuration options:
 <match site.*>
   type syslog_buffered
   remote_syslog your.syslog.host
-  port 25
+  port 514
   hostname ${hostname}
   facility local0
   severity debug
