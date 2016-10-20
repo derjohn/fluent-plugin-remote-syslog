@@ -19,6 +19,7 @@ Both plugins have the same configuration options:
 * severity: Syslog log severity
 * use_record: Use severity and facility from record if available
 * payload_key: Use the field specified in payload_key from record to set payload
+* payload_full: Set this to true and the full record will be sent to remote syslog , JSON encoded.
 
 #Configuration example:
 ```

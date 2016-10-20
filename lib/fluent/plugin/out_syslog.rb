@@ -21,7 +21,7 @@ module Fluent
     config_param :severity, :string, :default => 'debug'
     config_param :use_record, :string, :default => nil
     config_param :payload_key, :string, :default => 'message'
-
+    config_param :payload_full, :bool, :default => false
 
     def initialize
       super
@@ -43,9 +43,7 @@ module Fluent
       @severity = conf['severity']
       @use_record = conf['use_record']
       @payload_key = conf['payload_key']
-      if not @payload_key
-        @payload_key = "message"
-      end
+      @payload_full = conf['payload_full']
     end
 
 
@@ -88,7 +86,11 @@ module Fluent
                               tag[0..31] # tag is trimmed to 32 chars for syslog_protocol gem compatibility
                            end
         packet = @packet.dup
-        packet.content = record[@payload_key]
+        if @payload_full
+          packet.content = record.to_json.to_s
+        else
+          packet.content = record[@payload_key]
+        end
         @socket.send(packet.assemble, 0, @remote_syslog, @port)
     }
     end
