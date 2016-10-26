@@ -10,6 +10,7 @@ module Fluent
     Fluent::Plugin.register_output('syslog_buffered', self)
 
     include Fluent::Mixin::ConfigPlaceholders
+    include Fluent::HandleTagNameMixin
     include Fluent::Mixin::RewriteTagName
 
     config_param :remote_syslog, :string, :default => ""
@@ -17,6 +18,7 @@ module Fluent
     config_param :hostname, :string, :default => ""
     config_param :remove_tag_prefix, :string, :default => nil
     config_param :tag_key, :string, :default => nil
+    config_param :tag_maxlen, :integer, :default => 32
     config_param :facility, :string, :default => 'user'
     config_param :severity, :string, :default => 'debug'
     config_param :use_record, :string, :default => nil
@@ -45,6 +47,7 @@ module Fluent
       @use_record = conf['use_record']
       @payload_key = conf['payload_key']
       @payload_full = conf['payload_full']
+      @tag_maxlen = conf['tag_maxlen']-1
     end
 
     def format(tag, time, record)
@@ -106,9 +109,9 @@ module Fluent
       end
       @packet.time = time
       @packet.tag      = if tag_key
-                           record[tag_key][0..31].gsub(/[\[\]]/,'') # tag is trimmed to 32 chars for syslog_protocol gem compatibility
+                           record[tag_key][0..@tag_maxlen].gsub(/[\[\]]/,'') # tag is trimmed to 32 chars for syslog_protocol gem compatibility
                          else
-                           tag[0..31] # tag is trimmed to 32 chars for syslog_protocol gem compatibility
+                           tag[0..@tag_maxlen] # tag is trimmed to 32 chars for syslog_protocol gem compatibility
                          end
       packet = @packet.dup
       if @payload_full
