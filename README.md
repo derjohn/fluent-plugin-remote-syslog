@@ -15,7 +15,8 @@ Both plugins have the same configuration options:
 * hostname: hostname to be set for syslog messages
 * remove_tag_prefix: remove tag prefix for tag placeholder. 
 * tag_key: use the field specified in tag_key from record to set the syslog key
-* tag_maxlen: Truncate the key value to that number. Defaults to 32, because to to RFC. Might work with longer tags, depending on the syslog implementation.
+* tag_max_size: Truncate the key value to that number. Defaults to 32, because to to RFC. Might work with longer tags, depending on the syslog implementation.
+* msg_max_size: Truncate the whole message that is sent over the wire. RFC allows 1024 chars. Might work with longer tags, depending on the syslog implementation.
 * facility: Syslog log facility
 * severity: Syslog log severity
 * use_record: Use severity and facility from record if available

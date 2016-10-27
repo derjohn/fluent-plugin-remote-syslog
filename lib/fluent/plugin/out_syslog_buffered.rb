@@ -14,16 +14,17 @@ module Fluent
     include Fluent::Mixin::RewriteTagName
 
     config_param :remote_syslog, :string, :default => ""
-    config_param :port, :integer, :default => 25
+    config_param :port, :integer, default: 25
     config_param :hostname, :string, :default => ""
     config_param :remove_tag_prefix, :string, :default => nil
     config_param :tag_key, :string, :default => nil
-    config_param :tag_maxlen, :integer, :default => 32
+    config_param :tag_max_size, :integer, default: 32
     config_param :facility, :string, :default => 'user'
     config_param :severity, :string, :default => 'debug'
     config_param :use_record, :string, :default => nil
     config_param :payload_key, :string, :default => 'message'
     config_param :payload_full, :bool, :default => false
+    config_param :msg_max_size, :integer, default: 1024
 
     def initialize
       super
@@ -37,7 +38,7 @@ module Fluent
       if not conf['remote_syslog']
         raise Fluent::ConfigError.new("remote syslog required")
       end
-        @socket = create_tcp_socket(conf['remote_syslog'], conf['port'])
+      @socket = create_tcp_socket(conf['remote_syslog'], conf['port'])
       @packet = SyslogProtocol::Packet.new
       if remove_tag_prefix = conf['remove_tag_prefix']
         @remove_tag_prefix = Regexp.new('^' + Regexp.escape(remove_tag_prefix))
@@ -47,7 +48,10 @@ module Fluent
       @use_record = conf['use_record']
       @payload_key = conf['payload_key']
       @payload_full = conf['payload_full']
-      @tag_maxlen = conf['tag_maxlen']-1
+      @tag_max_size = conf['tag_max_size'].to_i
+      # Configure the packet
+      @packet.max_msg_size = conf['msg_max_size'].to_i
+      @packet.max_tag_size = @tag_max_size
     end
 
     def format(tag, time, record)
@@ -109,9 +113,9 @@ module Fluent
       end
       @packet.time = time
       @packet.tag      = if tag_key
-                           record[tag_key][0..@tag_maxlen].gsub(/[\[\]]/,'') # tag is trimmed to 32 chars for syslog_protocol gem compatibility
+                           record[tag_key][0..(@tag_max_size-1)].gsub(/[\[\]]/,'') # tag is trimmed. Default is 32 chars.
                          else
-                           tag[0..@tag_maxlen] # tag is trimmed to 32 chars for syslog_protocol gem compatibility
+                           tag[0..(@tag_max_size-1)] # tag is trimmed. Default is 32 chars.
                          end
       packet = @packet.dup
       if @payload_full
