@@ -48,3 +48,4 @@ Contributors:
 
 * Andrea Spoldi 
 * [deathowl](http://github.com/deathowl)
+* Andreas John (himself (at) derjohn.de)
